@@ -1,50 +1,34 @@
 # Mergington High School Activities API
 
-A super simple FastAPI application that allows students to view and sign up for extracurricular activities.
+A FastAPI application for browsing extracurricular activities. Activity details and participant lists are public; only authenticated teachers can add or remove student registrations.
 
-## Features
+## Setup
 
-- View all available extracurricular activities
-- Sign up for activities
+From the repository root:
 
-## Getting Started
+1. Install dependencies: `pip install -r requirements.txt`.
+2. Set a unique session secret in the root `.env` file. Generate one with `python -c "import secrets; print(secrets.token_urlsafe(48))"` and replace the `ADMIN_SESSION_SECRET` placeholder.
+3. Provision the first teacher account: `python src/create_teacher.py`. The script prompts for a username and password and stores only a salted PBKDF2 password hash in `src/teachers.json`. That file is ignored by Git.
+4. Start the application with `uvicorn src.app:app --reload`.
+5. Open `http://localhost:8000`.
 
-1. Install the dependencies:
+For HTTPS deployments, set `SESSION_COOKIE_SECURE=true`. The teacher session cookie is HttpOnly, SameSite=Strict, and expires after eight hours. Do not use the placeholder secret in a deployed environment.
 
-   ```
-   pip install fastapi uvicorn
-   ```
+## API endpoints
 
-2. Run the application:
+| Method | Endpoint | Access | Description |
+| --- | --- | --- | --- |
+| `GET` | `/activities` | Public | List activities and participants |
+| `GET` | `/auth/session` | Public | Check whether the current browser has a teacher session |
+| `POST` | `/auth/login` | Public | Sign in with a provisioned teacher username and password |
+| `POST` | `/auth/logout` | Public | Clear the teacher session cookie |
+| `POST` | `/activities/{activity_name}/signup?email=student@mergington.edu` | Teacher | Add a student to an activity |
+| `DELETE` | `/activities/{activity_name}/unregister?email=student@mergington.edu` | Teacher | Remove a student from an activity |
 
-   ```
-   python app.py
-   ```
+Login accepts JSON with `username` and `password`. Invalid credentials receive the same generic error. Passwords are hashed with PBKDF2-HMAC-SHA256 and a unique random salt; signed session cookies use HMAC-SHA256.
 
-3. Open your browser and go to:
-   - API documentation: http://localhost:8000/docs
-   - Alternative documentation: http://localhost:8000/redoc
+Run tests by installing `requirements-dev.txt` and invoking `pytest`.
 
-## API Endpoints
+## Current limitations
 
-| Method | Endpoint                                                          | Description                                                         |
-| ------ | ----------------------------------------------------------------- | ------------------------------------------------------------------- |
-| GET    | `/activities`                                                     | Get all activities with their details and current participant count |
-| POST   | `/activities/{activity_name}/signup?email=student@mergington.edu` | Sign up for an activity                                             |
-
-## Data Model
-
-The application uses a simple data model with meaningful identifiers:
-
-1. **Activities** - Uses activity name as identifier:
-
-   - Description
-   - Schedule
-   - Maximum number of participants allowed
-   - List of student emails who are signed up
-
-2. **Students** - Uses email as identifier:
-   - Name
-   - Grade level
-
-All data is stored in memory, which means data will be reset when the server restarts.
+Activity records and signups remain in memory and reset when the server restarts. Teacher account hashes are stored locally in `src/teachers.json`; provision accounts on each deployment and keep that file private. This change does not add persistent activity storage, account recovery, or external identity management.

@@ -50,6 +50,38 @@ section {
   max-width: 500px;
 }
 
+.auth-panel {
+  max-width: 420px;
+  align-self: flex-start;
+}
+
+.auth-panel > p {
+  margin-bottom: 15px;
+}
+
+.auth-panel input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.auth-panel input:focus,
+.form-group input:focus,
+.form-group select:focus {
+  outline: 3px solid rgba(57, 73, 171, 0.2);
+  border-color: #3949ab;
+}
+
+.secondary {
+  background-color: #5f6368;
+}
+
+.secondary:hover {
+  background-color: #45494d;
+}
+
 section h3 {
   margin-bottom: 20px;
   padding-bottom: 10px;
@@ -125,6 +157,12 @@ section h3 {
   background-color: #ffebee;
 }
 
+.delete-btn:focus-visible,
+button:focus-visible {
+  outline: 3px solid #90caf9;
+  outline-offset: 2px;
+}
+
 .participants-section p {
   color: #777;
   font-style: italic;
@@ -192,9 +230,28 @@ button:hover {
   display: none;
 }
 
+#signup-access-message {
+  margin-bottom: 15px;
+  color: #555;
+}
+
 footer {
   text-align: center;
   margin-top: 30px;
   padding: 20px;
   color: #666;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 12px;
+  }
+
+  main {
+    gap: 16px;
+  }
+
+  section {
+    padding: 16px;
+  }
 }
